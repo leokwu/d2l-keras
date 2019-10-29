@@ -13,7 +13,7 @@ class HousePricesNet:
 	@staticmethod
 	def build():
 		model = Sequential()
-        
+
         model.add(Dense(units=650, activation='relu'))
         # model.add(Dropout(0.8))#prevent overfitting add dropout
         model.add(Dense(units=650, activation='relu'))
@@ -24,5 +24,6 @@ class HousePricesNet:
         # for i in range(25):
         # model.add(Dense(units=701, activation='relu'))
 
+        model.add(Dense(1))
 		# return the constructed network architecture
 		return model
