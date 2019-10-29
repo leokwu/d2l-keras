@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from net.housepricesnet import HousePricesNet
 
 train_data = pd.read_csv('dataset/train.csv')
 test_data = pd.read_csv('dataset/test.csv')
@@ -28,5 +29,8 @@ test_features = np.array(all_features[n_train:].values)
 train_labels = np.array(train_data.SalePrice.values).reshape((-1, 1))
 
 print('train_features: %s\n test_features: %s\n train_labels: %s\n' % (train_features, test_features, train_labels))
+
+
+model = HousePricesNet.build()
 
 
