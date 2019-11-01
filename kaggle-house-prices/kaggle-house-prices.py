@@ -1,6 +1,14 @@
 import numpy as np
 import pandas as pd
 from net.housepricesnet import HousePricesNet
+from keras.optimizers import SGD, Adam
+from keras import backend as K
+
+
+INIT_LR = 1e-4
+BS = 8
+EPOCHS = 50
+
 
 train_data = pd.read_csv('dataset/train.csv')
 test_data = pd.read_csv('dataset/test.csv')
@@ -30,7 +38,30 @@ train_labels = np.array(train_data.SalePrice.values).reshape((-1, 1))
 
 print('train_features: %s\n test_features: %s\n train_labels: %s\n' % (train_features, test_features, train_labels))
 
+def log_rmse(y_true, y_pred):
+    # 将小于1的值设成1，使得取对数时数值更稳定
+    # clipped_preds = np.clip(K.np(y_pred), 1, float('inf'))
+    rmse = K.sqrt(K.mean(K.pow((K.log(y_pred) - K.log(y_true)), 2)))
+    print('rmse: %s \n', rmse)
+    return rmse
 
+opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model = HousePricesNet.build()
+
+
+# model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='mse', optimizer=opt, metrics=[log_rmse])
+
+# H = model.fit_generator((train_features, train_labels),
+# 	validation_data=test_features, steps_per_epoch=len(train_features) // BS,
+# 	epochs=EPOCHS)
+H = model.fit(train_features, train_labels, batch_size=50, epochs=10)
+print("[INFO] evaluating network...")
+predictions = model.predict(test_features, batch_size=BS)
+print('predictions: \n', predictions)
+
+result = model.evaluate(train_features, train_labels, batch_size=100)
+print('\nTrain Acc:', result[1])
+
 
 
