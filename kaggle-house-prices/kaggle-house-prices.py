@@ -55,7 +55,7 @@ model.compile(loss='mse', optimizer=opt, metrics=[log_rmse])
 # H = model.fit_generator((train_features, train_labels),
 # 	validation_data=test_features, steps_per_epoch=len(train_features) // BS,
 # 	epochs=EPOCHS)
-H = model.fit(train_features, train_labels, batch_size=50, epochs=10)
+H = model.fit(train_features, train_labels, validation_split=0.1, batch_size=50, epochs=10)
 print("[INFO] evaluating network...")
 predictions = model.predict(test_features, batch_size=BS)
 print('predictions: \n', predictions)
