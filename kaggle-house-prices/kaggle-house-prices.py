@@ -40,8 +40,8 @@ print('train_features: %s\n test_features: %s\n train_labels: %s\n' % (train_fea
 
 def log_rmse(y_true, y_pred):
     # 将小于1的值设成1，使得取对数时数值更稳定
-    # clipped_preds = np.clip(K.np(y_pred), 1, float('inf'))
-    rmse = K.sqrt(K.mean(K.pow((K.log(y_pred) - K.log(y_true)), 2)))
+    clipped_preds = K.clip(y_pred, 1, float('inf'))
+    rmse = K.sqrt(K.mean(K.pow((K.log(clipped_preds) - K.log(y_true)), 2)))
     print('rmse: %s \n', rmse)
     return rmse
 
@@ -61,7 +61,7 @@ predictions = model.predict(test_features, batch_size=BS)
 print('predictions: \n', predictions)
 
 result = model.evaluate(train_features, train_labels, batch_size=100)
-print('\nTrain Acc:', result[1])
+print('\nTrain log rmse:', result[1])
 
 
 
