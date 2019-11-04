@@ -1,13 +1,16 @@
+import matplotlib
+matplotlib.use("TkAgg")
 import numpy as np
 import pandas as pd
 from net.housepricesnet import HousePricesNet
 from keras.optimizers import SGD, Adam
 from keras import backend as K
+import matplotlib.pyplot as plt
 
-
-INIT_LR = 1e-4
+# INIT_LR = 1e-4
+INIT_LR = 5
 BS = 8
-EPOCHS = 50
+EPOCHS = 100
 
 
 train_data = pd.read_csv('dataset/train.csv')
@@ -49,19 +52,37 @@ opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model = HousePricesNet.build()
 
 
-# model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
-model.compile(loss='mse', optimizer=opt, metrics=[log_rmse])
+# model.compile(loss='mse', optimizer=opt, metrics=[log_rmse])
+model.compile(loss='mse', optimizer='adam', metrics=[log_rmse])
 
 # H = model.fit_generator((train_features, train_labels),
 # 	validation_data=test_features, steps_per_epoch=len(train_features) // BS,
 # 	epochs=EPOCHS)
-H = model.fit(train_features, train_labels, validation_split=0.1, batch_size=50, epochs=10)
-print("[INFO] evaluating network...")
+H = model.fit(train_features, train_labels, validation_split=0.15, batch_size=50, epochs=EPOCHS)
+
+# np.set_printoptions(threshold=np.inf)
+
 predictions = model.predict(test_features, batch_size=BS)
 print('predictions: \n', predictions)
+
+test_data['SalePrice'] = pd.Series(predictions.reshape(1, -1)[0])
+submission = pd.concat([test_data['Id'], test_data['SalePrice']], axis=1)
+submission.to_csv('submission.csv', index=False)
 
 result = model.evaluate(train_features, train_labels, batch_size=100)
 print('\nTrain log rmse:', result[1])
 
 
 
+plt.style.use("ggplot")
+plt.figure()
+plt.plot(np.arange(0, EPOCHS), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, EPOCHS), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, EPOCHS), H.history["log_rmse"], label="train_log_rmse")
+plt.plot(np.arange(0, EPOCHS), H.history["val_log_rmse"], label="val_log_rmse")
+plt.title("Training Loss and Accuracy on Dataset")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/log_rmse")
+plt.legend(loc="lower left")
+plt.savefig("plot.png")
+plt.show()

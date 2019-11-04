@@ -7,18 +7,25 @@ from keras.layers.core import Activation
 from keras.layers.core import Flatten
 from keras.layers.core import Dropout
 from keras.layers.core import Dense
+from keras.layers.advanced_activations import LeakyReLU
 from keras import backend as K
 
 class HousePricesNet:
     @staticmethod
     def build():
         model = Sequential()
-        model.add(Dense(units=650, activation='relu'))
-        # model.add(Dropout(0.8))#prevent overfitting add dropout
-        model.add(Dense(units=650, activation='relu'))
-        # model.add(Dropout(0.8))
-        model.add(Dense(units=650, activation='relu'))
-        # model.add(Dropout(0.8))
+        # model.add(Dense(units=650, activation='relu'))
+        model.add(Dense(units=650))
+        model.add(LeakyReLU(alpha=0.3))
+        model.add(Dropout(0.3))# prevent overfitting add dropout
+        # model.add(Dense(units=650, activation='relu'))
+        model.add(Dense(units=650))
+        model.add(LeakyReLU(alpha=0.3))
+        model.add(Dropout(0.3))
+        # model.add(Dense(units=650, activation='relu'))
+        model.add(Dense(units=650))
+        model.add(LeakyReLU(alpha=0.3))
+        model.add(Dropout(0.3))
 
         # for i in range(25):
         # model.add(Dense(units=701, activation='relu'))
