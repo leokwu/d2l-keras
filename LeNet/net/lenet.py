@@ -11,21 +11,19 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras import backend as K
 
 class LeNet:
-    @staticmethod
-    def build():
-        #common process-----------------------------------------------------------------------
+    def build(chanDim, input_shape, num_classes):
+        # common process-----------------------------------------------------------------------
         model = Sequential()
-        model.add(Dense(input_dim=28*28, units=650, activation='relu'))
-
-        #model.add(Dropout(0.8))#prevent overfitting add dropout
-        model.add(Dense(units=650, activation='relu'))
-        #model.add(Dropout(0.8))
-        model.add(Dense(units=650, activation='relu'))
-        #model.add(Dropout(0.8))
-
-        #for i in range(25):
-        # model.add(Dense(units=701, activation='relu'))
-
-        model.add(Dense(units=10, activation='softmax'))
+        model.add(Conv2D(32, kernel_size=(3, 3),
+                         activation='relu',
+                         input_shape=input_shape))
+        model.add(BatchNormalization(axis=chanDim))
+        model.add(Conv2D(64, (3, 3), activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.25))
+        model.add(Flatten())
+        model.add(Dense(128, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(num_classes, activation='softmax'))
 
         return model
