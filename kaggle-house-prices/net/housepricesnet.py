@@ -27,8 +27,8 @@ class HousePricesNet:
         model.add(LeakyReLU(alpha=0.3))
         model.add(Dropout(0.3))
 
-        # for i in range(25):
-        # model.add(Dense(units=701, activation='relu'))
+        # for i in range(4):
+        #    model.add(Dense(units=1024, activation='relu'))
 
         model.add(Dense(1))
         # return the constructed network architecture

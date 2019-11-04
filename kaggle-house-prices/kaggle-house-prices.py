@@ -7,9 +7,8 @@ from keras.optimizers import SGD, Adam
 from keras import backend as K
 import matplotlib.pyplot as plt
 
-# INIT_LR = 1e-4
-INIT_LR = 5
-BS = 8
+INIT_LR = 1e-4
+BS = 32
 EPOCHS = 100
 
 
@@ -58,7 +57,7 @@ model.compile(loss='mse', optimizer='adam', metrics=[log_rmse])
 # H = model.fit_generator((train_features, train_labels),
 # 	validation_data=test_features, steps_per_epoch=len(train_features) // BS,
 # 	epochs=EPOCHS)
-H = model.fit(train_features, train_labels, validation_split=0.15, batch_size=50, epochs=EPOCHS)
+H = model.fit(train_features, train_labels, validation_split=0.1, batch_size=BS, epochs=EPOCHS)
 
 # np.set_printoptions(threshold=np.inf)
 
