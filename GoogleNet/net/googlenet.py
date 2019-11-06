@@ -17,9 +17,9 @@ class GoogleNet:
         # common process-----------------------------------------------------------------------
         model = Sequential()
         if chanDim == -1:
-            model.add(Lambda(lambda x: K.resize_images(x, 32, 32, data_format="channels_last"), input_shape=input_shape, output_shape(32, 32, 1)))
+            model.add(Lambda(lambda x: K.resize_images(x, (32, 32), data_format="channels_last"), input_shape=input_shape, output_shape=(32, 32, 1)))
         if chanDim == 1:
-            model.add(Lambda(lambda x: K.resize_images(x, 32, 32, data_format="channels_first"), input_shape=input_shape, output_shape=(1, 32, 32)))
+            model.add(Lambda(lambda x: K.resize_images(x, (32, 32), data_format="channels_first"), input_shape=input_shape, output_shape=(1, 32, 32)))
         model.add(Conv2D(32, kernel_size=(3, 3),
                          activation='relu'))
         model.add(BatchNormalization(axis=chanDim))
