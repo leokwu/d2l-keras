@@ -38,7 +38,7 @@ y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
 
-model = ResNet.build(chanDim, input_shape, num_classes)
+model = ResNet.build(ResNet, chanDim, input_shape, num_classes)
 # model.compile(loss='mse', optimizer=SGD(lr=0.1), metrics=['accuracy'])
 # model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.1), metrics=['accuracy'])
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])

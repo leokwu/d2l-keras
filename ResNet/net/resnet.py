@@ -38,11 +38,11 @@ class Residual():
         self.bn2 = BatchNormalization(axis=-1)
 
     def __call__(self, X):
-        Y = ReLU(self.bn1(self.conv1(X)))
+        Y = ReLU()(self.bn1(self.conv1(X)))
         Y = self.bn2(self.conv2(Y))
         if self.conv3:
             X = self.conv3(X)
-        return ReLU(Y + X)
+        return ReLU()(Y + X)
 
 class ResNet:
     def build(self, chanDim, input_shape, num_classes):
@@ -52,7 +52,8 @@ class ResNet:
 
         b1 = Conv2D(64, kernel_size=(7, 7), strides=2, padding='same')(x)
         b1 = BatchNormalization(axis=-1)(b1)
-        b1 = Activation('relu')(b1)
+        # b1 = Activation('relu')(b1)
+        b1 = ReLU()(b1)
         b1 = MaxPooling2D(pool_size=(3, 3), strides=2, padding='same')(b1)        
 
         b2 = self.resnet_block(b1, 64, 2, first_block=True)
