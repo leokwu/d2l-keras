@@ -2,7 +2,7 @@ from keras.utils import np_utils
 from keras.datasets import fashion_mnist
 from net.googlenet import GoogleNet
 import keras
-
+from keras import backend as K
 
 batch_size = 128
 num_classes = 10

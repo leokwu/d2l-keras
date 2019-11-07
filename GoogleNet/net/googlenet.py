@@ -27,17 +27,18 @@ class Inception():
         self.p1_1 = Conv2D(c1, kernel_size=1, activation='relu')
         # 线路2，1 x 1卷积层后接3 x 3卷积层
         self.p2_1 = Conv2D(c2[0], kernel_size=1, activation='relu')
-        self.p2_2 = Conv2D(c2[1], kernel_size=3, padding=1,
+        self.p2_2 = Conv2D(c2[1], kernel_size=3, padding='same',
                               activation='relu')
         # 线路3，1 x 1卷积层后接5 x 5卷积层
         self.p3_1 = Conv2D(c3[0], kernel_size=1, activation='relu')
-        self.p3_2 = Conv2D(c3[1], kernel_size=5, padding=2,
+        self.p3_2 = Conv2D(c3[1], kernel_size=5, padding='valid',
                               activation='relu')
         # 线路4，3 x 3最大池化层后接1 x 1卷积层
-        self.p4_1 = MaxPooling2D(pool_size=3, strides=1, padding=1)
+        self.p4_1 = MaxPooling2D(pool_size=3, strides=1, padding='same')
         self.p4_2 = Conv2D(c4, kernel_size=1, activation='relu')
 
-    def forward(self, x):
+    # def forward(self, x):
+    def __call__(self, x):
         p1 = self.p1_1(x)
         p2 = self.p2_2(self.p2_1(x))
         p3 = self.p3_2(self.p3_1(x))
