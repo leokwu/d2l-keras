@@ -45,7 +45,7 @@ class Residual():
         return ReLU()(Y + X)
 
 class ResNet:
-    def build(self, chanDim, input_shape, num_classes):
+    def build(chanDim, input_shape, num_classes):
         # common process-----------------------------------------------------------------------
         inputs = Input(input_shape)
         x = Lambda(lambda img: tf.image.resize(img, (224, 224)))(inputs)
@@ -56,10 +56,10 @@ class ResNet:
         b1 = ReLU()(b1)
         b1 = MaxPooling2D(pool_size=(3, 3), strides=2, padding='same')(b1)        
 
-        b2 = self.resnet_block(b1, 64, 2, first_block=True)
-        b2 = self.resnet_block(b2, 128, 2)
-        b2 = self.resnet_block(b2, 256, 2)
-        b2 = self.resnet_block(b2, 512, 2)
+        b2 = resnet_block(b1, 64, 2, first_block=True)
+        b2 = resnet_block(b2, 128, 2)
+        b2 = resnet_block(b2, 256, 2)
+        b2 = resnet_block(b2, 512, 2)
 
         b3 = GlobalAveragePooling2D()(b2)
       
@@ -67,11 +67,11 @@ class ResNet:
         model = Model(inputs=inputs, outputs=outputs)
         model.summary()
         return model
-    def resnet_block(x, num_channels, num_residuals, first_block=False):
-        y = x
-        for i in range(num_residuals):
-            if i == 0 and not first_block:
-                y = Residual(num_channels, use_1x1conv=True, strides=2)(y)
-            else:
-                y = Residual(num_channels)(y)
-        return y
+def resnet_block(x, num_channels, num_residuals, first_block=False):
+    y = x
+    for i in range(num_residuals):
+        if i == 0 and not first_block:
+            y = Residual(num_channels, use_1x1conv=True, strides=2)(y)
+        else:
+            y = Residual(num_channels)(y)
+    return y
