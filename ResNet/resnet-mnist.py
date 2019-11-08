@@ -1,8 +1,7 @@
 from keras.utils import np_utils
-from keras.datasets import fashion_mnist
 from net.resnet import ResNet
-import keras
-from keras import backend as K
+from tensorflow import keras
+import tensorflow.keras.backend as K
 
 batch_size = 8
 num_classes = 10
@@ -12,7 +11,7 @@ epochs = 5
 img_rows, img_cols = 28, 28
 
 # the data, split between train and test sets
-(x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+(x_train, y_train), (x_test, y_test) = keras.datasets.fashion_mnist.load_data()
 
 if K.image_data_format() == 'channels_first':
     x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)

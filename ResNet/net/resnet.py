@@ -1,78 +1,72 @@
 # import the necessary packages
-from keras.models import Sequential
-from keras.models import Model
-from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Conv2D
-from keras.layers.convolutional import MaxPooling2D
-from keras.layers import Activation
-from keras.layers import Flatten
-from keras.layers import Dropout
-from keras.layers import Dense
-from keras.layers.advanced_activations import LeakyReLU
-from keras import backend as K
-from keras.layers import Lambda
-from keras.layers import Reshape
-from keras.layers import Input
+
+from tensorflow import keras
 import tensorflow as tf
-from keras.layers import concatenate
-from keras.layers import add
-from keras.layers.convolutional import AveragePooling2D
-from keras.layers import GlobalAveragePooling2D
-from keras.layers import Layer
-from keras.layers import ReLU
-from keras.layers import Activation
 
-
-class Residual(Layer):
-    def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
-        super(Residual, self).__init__(**kwargs)
-        self.conv1 = Conv2D(num_channels, kernel_size=(3, 3), padding='same',
-                               strides=strides)
-        self.conv2 = Conv2D(num_channels, kernel_size=(3, 3), padding='same')
+class Residual(keras.layers.Layer):
+    def __init__(self, num_channels, use_1x1conv=False, strides=1, *args, **kwargs):
+        super(Residual, self).__init__(*args, **kwargs)
+        self.num_chn = num_channels
+        self.conv1 = keras.layers.Conv2D(num_channels, kernel_size=3, padding='same', strides=strides)
+        self.conv2 = keras.layers.Conv2D(num_channels, kernel_size=3, padding='same')
+        self.relu = keras.layers.ReLU()
+        self.relu2 = keras.layers.ReLU()
+        
         if use_1x1conv:
-            self.conv3 = Conv2D(num_channels, kernel_size=(1, 1),
-                                   strides=strides)
+           self.conv3 = keras.layers.Conv2D(num_channels, kernel_size=1, strides=strides)
         else:
-            self.conv3 = None
-        self.bn1 = BatchNormalization(axis=-1)
-        self.bn2 = BatchNormalization(axis=-1)
-
-    def call(self, X):
-        Y = ReLU()(self.bn1(self.conv1(X)))
+           self.conv3 = None
+            
+        self.bn1 = keras.layers.BatchNormalization()
+        self.bn2 = keras.layers.BatchNormalization()
+        
+    def call(self, inputs, training=None, mask=None):
+        Y = self.relu(self.bn1(self.conv1(inputs)))
         Y = self.bn2(self.conv2(Y))
         if self.conv3:
-            X = self.conv3(X)
-        return ReLU()(Y + X)
+           inputs = self.conv3(inputs)
+        print('>>>>>>>>>>>>>', Y.shape, inputs.shape)  
+        Y =  self.relu2(Y + inputs)
+        print(">>>>>>>>>>>>y", Y.shape)
+        return Y
+
+    def compute_output_shape(self, input_shape):
+        print(input_shape[1], input_shape[2], self.num_chn)
+        return (input_shape[0], input_shape[1], input_shape[2], self.num_chn)
+
 
 class ResNet:
     def build(chanDim, input_shape, num_classes):
-        # common process-----------------------------------------------------------------------
-        inputs = Input(input_shape)
-        x = Lambda(lambda img: tf.image.resize(img, (128, 128)))(inputs)
 
-        b1 = Conv2D(64, kernel_size=(7, 7), strides=2, padding='same')(x)
-        b1 = BatchNormalization(axis=-1)(b1)
-        b1 = ReLU()(b1)
-        b1 = MaxPooling2D(pool_size=(3, 3), strides=2, padding='same')(b1)        
+        inputs = keras.Input(input_shape)
+        x = keras.layers.Lambda(lambda img: tf.image.resize(img, (128, 128)))(inputs)
+
+        b1 = keras.layers.Conv2D(64, kernel_size=(7, 7), strides=2, padding='same')(x)
+        b1 = keras.layers.BatchNormalization(axis=-1)(b1)
+        b1 = keras.layers.ReLU()(b1)
+        b1 = keras.layers.MaxPooling2D(pool_size=(3, 3), strides=2, padding='same')(b1)
 
         b2 = resnet_block(b1, 64, 2, first_block=True)
         b2 = resnet_block(b2, 128, 2)
         b2 = resnet_block(b2, 256, 2)
         b2 = resnet_block(b2, 512, 2)
 
-        b3 = GlobalAveragePooling2D()(b2)
+        b3 = keras.layers.GlobalAveragePooling2D()(b2)
         # b2 = AveragePooling2D()(b2)
-        # b3 = Flatten()(b2)
-      
-        outputs = Dense(num_classes, activation='softmax')(b3)
-        model = Model(inputs=inputs, outputs=outputs)
+        # b3 = keras.layers.Flatten()(b2)
+
+        outputs = keras.layers.Dense(num_classes, activation='softmax')(b3)
+        model = keras.Model(inputs=inputs, outputs=outputs)
+
         model.summary()
         return model
+
+
 def resnet_block(x, num_channels, num_residuals, first_block=False):
-    y = x
     for i in range(num_residuals):
         if i == 0 and not first_block:
-            y = Residual(num_channels, use_1x1conv=True, strides=2)(y)
+            x = Residual(num_channels, use_1x1conv=True, strides=2)(x)
         else:
-            y = Residual(num_channels)(y)
-    return y
+            x = Residual(num_channels)(x)
+    return x
+
