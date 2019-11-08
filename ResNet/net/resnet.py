@@ -23,7 +23,7 @@ from keras.layers import ReLU
 from keras.layers import Activation
 
 
-class Residual():
+class Residual(Layer):
     def __init__(self, num_channels, use_1x1conv=False, strides=1, **kwargs):
         super(Residual, self).__init__(**kwargs)
         self.conv1 = Conv2D(num_channels, kernel_size=(3, 3), padding='same',
@@ -37,7 +37,7 @@ class Residual():
         self.bn1 = BatchNormalization(axis=-1)
         self.bn2 = BatchNormalization(axis=-1)
 
-    def __call__(self, X):
+    def call(self, X):
         Y = ReLU()(self.bn1(self.conv1(X)))
         Y = self.bn2(self.conv2(Y))
         if self.conv3:
@@ -48,11 +48,10 @@ class ResNet:
     def build(chanDim, input_shape, num_classes):
         # common process-----------------------------------------------------------------------
         inputs = Input(input_shape)
-        x = Lambda(lambda img: tf.image.resize(img, (224, 224)))(inputs)
+        x = Lambda(lambda img: tf.image.resize(img, (128, 128)))(inputs)
 
         b1 = Conv2D(64, kernel_size=(7, 7), strides=2, padding='same')(x)
         b1 = BatchNormalization(axis=-1)(b1)
-        # b1 = Activation('relu')(b1)
         b1 = ReLU()(b1)
         b1 = MaxPooling2D(pool_size=(3, 3), strides=2, padding='same')(b1)        
 
@@ -62,6 +61,8 @@ class ResNet:
         b2 = resnet_block(b2, 512, 2)
 
         b3 = GlobalAveragePooling2D()(b2)
+        # b2 = AveragePooling2D()(b2)
+        # b3 = Flatten()(b2)
       
         outputs = Dense(num_classes, activation='softmax')(b3)
         model = Model(inputs=inputs, outputs=outputs)

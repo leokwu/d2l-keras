@@ -4,7 +4,7 @@ from net.resnet import ResNet
 import keras
 from keras import backend as K
 
-batch_size = 128
+batch_size = 8
 num_classes = 10
 epochs = 5
 
