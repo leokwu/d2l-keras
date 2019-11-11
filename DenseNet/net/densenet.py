@@ -50,16 +50,16 @@ class DenseNet:
 
         num_channels, growth_rate = 64, 32
         num_convs_in_dense_blocks = [4, 4, 4, 4]
-        b2 = b1
+        # b2 = b1
         for i, num_convs in enumerate(num_convs_in_dense_blocks):
-            b2 = DenseBlock(num_convs, growth_rate)(b2)
+            b1 = DenseBlock(num_convs, growth_rate)(b1)
             # 上一个稠密块的输出通道数
             num_channels += num_convs * growth_rate
             # 在稠密块之间加入通道数减半的过渡层
-        b3 = b2
+        # b3 = b2
         if i != len(num_convs_in_dense_blocks) - 1:
             num_channels //= 2
-            b3 = transition_block(b3, num_channels)
+            b3 = transition_block(b1, num_channels)
         
         b4 = keras.layers.BatchNormalization()(b3)
         b4 = keras.layers.Activation('relu')(b4)
